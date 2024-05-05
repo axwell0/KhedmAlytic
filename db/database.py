@@ -27,11 +27,11 @@ class Mongo:
         return cls._instance
 
     def __getitem__(self, coll: str) -> motor.motor_asyncio.AsyncIOMotorCollection:
-        """Retrieves collection object"""
+        """Retrieves MongoDB collection object"""
         return Mongo.database[coll]
 
     async def insert_job(self, job: Any, collection: str) -> None:
-        """Updates collection with jobs entries"""
+        """Inserts job in collection"""
         try:
             await self[collection].insert_one(job)
             print(f"Uploaded document {job} to collection {collection}")

@@ -24,3 +24,5 @@ class bayt_cfg:
     unique_index = [("Title", pymongo.ASCENDING),
                     ("Employer", pymongo.ASCENDING),
                     ("posted_on", pymongo.ASCENDING)]
+
+    MAX_WORKERS: int = 20

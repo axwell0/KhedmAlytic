@@ -1,21 +1,18 @@
 import asyncio
-import os
+import json
+import math
 
 import aiohttp
 import bs4
-import json
-import math
-from dotenv import load_dotenv
-
-from asyncio import Queue
-from aiohttp import ClientSession, ServerTimeoutError, ClientResponse
+from aiohttp import ServerTimeoutError
 from tenacity import retry, retry_if_exception_type
+from throttler import Throttler
 from scrapers.BaseScraper import BaseScraper
 
 
 class BaytScraper(BaseScraper):
     def __init__(self, config):
-        super().__init__(config)
+        super().__init__(config, Throttler(999))
 
     async def _fetch_base_urls(self) -> None:
         """Fetches URLs of pages containing listings and updates _base_urls"""
@@ -25,21 +22,14 @@ class BaytScraper(BaseScraper):
             soup = bs4.BeautifulSoup(await response.text(), 'lxml')
             count_element = soup.find(**self._config.job_count).string
             n_jobs = int(count_element.strip().split()[0])
-            print(f'{n_jobs} found')
+            print(f'{n_jobs} jobs found')
             self._base_urls = [f"{self._config.BASE_URL}{i}" for i in
                                range(1, math.ceil(n_jobs / self._config.ITEMS_PER_PAGE) + 1)]
 
-    async def run(self, max_workers="max"):
-        await self._fetch_base_urls()
 
-        await asyncio.gather(*(self.fetch_job_postings(url) for url in self._base_urls))
 
-        if (max_workers == "max"):
-            max_workers = self._postings.qsize()
-        await asyncio.gather(self._postings.join(), *(self._worker() for i in range(max_workers)))
-        self.save_jobs(self._config.FILE_PATH, self.jobs)
 
-        await self._session.close()
+
 
     @retry(retry=retry_if_exception_type(ServerTimeoutError))
     async def fetch_job_postings(self, url: str) -> None:
@@ -92,24 +82,25 @@ class BaytScraper(BaseScraper):
                 except:
                     description = "unavailable"
 
-                job_dictionary = {"Title": title,
-                                  "Job Location": None,
-                                  "Employer": employer,
-                                  "Employment Type": None,
-                                  "Job Role": None,
-                                  "Company Type": None,
-                                  "Company Industry": None,
-                                  "Monthly Salary Range": None,
-                                  "Number of Vacancies": None,
-                                  "Description": description,
-                                  "posted_on": posted_on,
-                                  "Valid_Through": valid_through,
-                                  "job_link": url
-
-                                  }
+                job_dictionary = \
+                {
+                    "Title": title,
+                    "Job Location": None,
+                    "Employer": employer,
+                    "Employment Type": None,
+                    "Job Role": None,
+                    "Company Type": None,
+                    "Company Industry": None,
+                    "Monthly Salary Range": None,
+                    "Number of Vacancies": None,
+                    "Description": description,
+                    "posted_on": posted_on,
+                    "Valid_Through": valid_through,
+                    "job_link": url
+                }
                 for item in list_item.find_all('div'):
                     job_dictionary[item.dt.string.strip()] = item.dd.string.strip()
-                print(job_dictionary)
+                print(f'Bayt {job_dictionary}')
                 return job_dictionary
 
             except:
