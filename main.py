@@ -5,7 +5,7 @@ import time
 from dotenv import load_dotenv
 import aiohttp
 import asyncio
-
+from throttler import throttler
 from config.bayt_config import bayt_cfg
 from config.Tanit_config import Tanit_cfg
 
@@ -50,9 +50,10 @@ start_time = time.time()
 #         scrape_job_links(data=f"https://www.tanitjobs.com/jobs/?action=search&page={i}")
 
 async def main() -> None:
-    x = TanitScraper(Tanit_cfg)
+    t = throttler.Throttler(5)
+    x = TanitScraper(Tanit_cfg,t)
     # await x.fetch_listings_pages()
-    await x.parse_job_posting('https://www.tanitjobs.com/job/1535269/customer-support-team-leader/?backPage=1&searchID=1714731665.1599')
+    await x.run()
 
 
 

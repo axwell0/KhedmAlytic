@@ -13,17 +13,12 @@ from tenacity import retry, retry_if_exception_type
 from scrapers.BaseScraper import BaseScraper
 
 
-
-
-
-
 class BaytScraper(BaseScraper):
     def __init__(self, config):
         super().__init__(config)
 
-
-    async def run(self, max_workers = "max"):
-
+    async def _fetch_base_urls(self) -> None:
+        """Fetches URLs of pages containing listings and updates _base_urls"""
         async with self._session.get(self._config.BASE_URL + "1") as response:
             self.check_timeout(response)
 
@@ -34,21 +29,22 @@ class BaytScraper(BaseScraper):
             self._base_urls = [f"{self._config.BASE_URL}{i}" for i in
                                range(1, math.ceil(n_jobs / self._config.ITEMS_PER_PAGE) + 1)]
 
-        await asyncio.gather(*(self.fetch_job_postings(url, self._session) for url in self._base_urls))
+    async def run(self, max_workers="max"):
+        await self._fetch_base_urls()
+
+        await asyncio.gather(*(self.fetch_job_postings(url) for url in self._base_urls))
 
         if (max_workers == "max"):
             max_workers = self._postings.qsize()
-        await asyncio.gather(self._postings.join(), *(self._worker(self._session) for i in range(max_workers)))
+        await asyncio.gather(self._postings.join(), *(self._worker() for i in range(max_workers)))
         self.save_jobs(self._config.FILE_PATH, self.jobs)
-
 
         await self._session.close()
 
-
     @retry(retry=retry_if_exception_type(ServerTimeoutError))
-    async def fetch_job_postings(self, url: str, session: ClientSession) -> None:
+    async def fetch_job_postings(self, url: str) -> None:
         """Fetch the URLs of individual job postings from a single base URL."""
-        async with session.get(url) as response:
+        async with self._session.get(url) as response:
             self.check_timeout(response)
 
             soup = bs4.BeautifulSoup(await response.text(), 'lxml')
@@ -77,9 +73,9 @@ class BaytScraper(BaseScraper):
     @retry(retry=(retry_if_exception_type(AttributeError) | retry_if_exception_type(
         aiohttp.ClientConnectorError) | retry_if_exception_type(ServerTimeoutError) | retry_if_exception_type(
         aiohttp.ServerDisconnectedError)))
-    async def parse_job_posting(self, url: str, session: ClientSession) -> dict[str, str | None | dict]:
+    async def parse_job_posting(self, url: str) -> dict[str, str | None | dict]:
         """takes the job posting URL and extracts all relevant information about the job"""
-        async with session.get(url) as response:
+        async with self._session.get(url) as response:
             self.check_timeout(response)
             job_page_content = await response.text()
             job_page_soup = bs4.BeautifulSoup(job_page_content, 'lxml')
@@ -119,4 +115,3 @@ class BaytScraper(BaseScraper):
             except:
                 print(f'Error with {url}')
                 print(f'{job_page_content}')
-
