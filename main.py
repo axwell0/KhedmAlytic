@@ -8,11 +8,11 @@ import asyncio
 from config.bayt_config import bayt_cfg
 from config.Tanit_config import Tanit_cfg
 
-from db.database import Mongo
+from database.database import Mongo
 from scrapers.BaytScraper import BaytScraper
 from scrapers.TanitScraper import TanitScraper
 
-load_dotenv('db/.env')
+load_dotenv('database/.env')
 bayt_collection = os.environ['Bayt_collection']
 Tanit_collection = os.environ['Tanit_collection']
 start_time = time.time()
@@ -26,9 +26,6 @@ async def main() -> None:
 
     async with Mongo() as mongo:
         await asyncio.gather(*(mongo.insert_job(job, bayt_collection) for job in results[0]),*(mongo.insert_job(job, Tanit_collection) for job in results[1]))
-
-
-
 
 asyncio.run(main())
 

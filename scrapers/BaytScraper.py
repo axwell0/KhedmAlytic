@@ -27,10 +27,6 @@ class BaytScraper(BaseScraper):
                                range(1, math.ceil(n_jobs / self._config.ITEMS_PER_PAGE) + 1)]
 
 
-
-
-
-
     @retry(retry=retry_if_exception_type(ServerTimeoutError))
     async def fetch_job_postings(self, url: str) -> None:
         """Fetch the URLs of individual job postings from a single base URL."""

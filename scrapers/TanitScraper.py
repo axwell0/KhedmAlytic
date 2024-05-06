@@ -14,11 +14,6 @@ class TanitScraper(BaseScraper):
 
     def __init__(self, config):
         super().__init__(config, Throttler(config.RATE_LIMIT))
-
-
-
-
-
     async def fetch_last_listings_page(self) -> int:
         """Returns the number indicating the last base URL page"""
 
@@ -71,8 +66,8 @@ class TanitScraper(BaseScraper):
                 async with self._session.get(listing['url']) as response:
                     self.check_timeout(response)
                     soup = bs4.BeautifulSoup(await response.text(), "lxml", parse_only=bs4.SoupStrainer('div')).select_one(
-                        'div.detail-offre')
-                    job_details_item = soup.select_one('div.infos_job_details')
+                        self._config.job_offer_item)
+                    job_details_item = soup.select_one(self._config.job_details_item)
                     job_listing = {
                         "Postes vacants": None,
                         "Niveau d'étude": None,
@@ -82,12 +77,12 @@ class TanitScraper(BaseScraper):
                         "Experience": None,
                         "Genre": None,
                     }
-                    for item in job_details_item.find_all('div', class_="col-md-4"):
+                    for item in job_details_item.find_all(**self._config.heading_details):
                         detail_title = str(item.find('dt').string.strip())
                         detail_content = item.find('dd').string.strip()
                         job_listing[detail_title[:detail_title.find(':')].strip()] = detail_content
 
-                    for title, content in zip(soup.find_all('h3'), soup.select('div.details-body__content.content-text')):
+                    for title, content in zip(soup.find_all('h3'), soup.select(self._config.body_details)):
                         job_listing[title.string.strip()] = normalize("NFKD", content.get_text(strip=True, separator=""))
                     listing.update(job_listing)
                     print(f'Tanit {listing}')
