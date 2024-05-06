@@ -12,7 +12,7 @@ from scrapers.BaseScraper import BaseScraper
 
 class BaytScraper(BaseScraper):
     def __init__(self, config):
-        super().__init__(config, Throttler(999))
+        super().__init__(config, Throttler(config.RATE_LIMIT))
 
     async def _fetch_base_urls(self) -> None:
         """Fetches URLs of pages containing listings and updates _base_urls"""

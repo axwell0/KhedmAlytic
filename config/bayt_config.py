@@ -26,3 +26,5 @@ class bayt_cfg:
                     ("posted_on", pymongo.ASCENDING)]
 
     MAX_WORKERS: int = 20
+
+    RATE_LIMIT: int = 999 #Bayt is robust to frequent requests
