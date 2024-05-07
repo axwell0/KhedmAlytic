@@ -32,17 +32,19 @@ class Mongo:
 
     async def insert_job(self, job: Any, collection: str) -> None:
         """Inserts job in collection"""
-        try:
-            await self[collection].insert_one(job)
-            print(f"Uploaded document {job} to collection {collection}")
-        except:
-            print(f"Skipped {job['Title']}  due to duplicate key error")
+        if (job):
+            try:
+                await self[collection].insert_one(job)
+                print(f"Uploaded document {job['Title']} to collection {collection}")
+            except:
+                print(f"Skipped {job['Title']}  due to duplicate key error")
 
     async def wipe(self, collection: str) -> None:
         """Clears all documents from a particular collection"""
 
         await self[collection].delete_many({})
         print(f'Wiped {collection} of all documents')
+
 
     async def __aenter__(self):
         try:

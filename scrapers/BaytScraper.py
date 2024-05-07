@@ -4,10 +4,14 @@ import math
 
 import aiohttp
 import bs4
+import motor.motor_asyncio
 from aiohttp import ServerTimeoutError
+from aiohttp.client_exceptions import ClientPayloadError
 from tenacity import retry, retry_if_exception_type
 from throttler import Throttler
 from scrapers.BaseScraper import BaseScraper
+from aiohttp_client_cache import CachedSession
+
 
 
 class BaytScraper(BaseScraper):
@@ -16,6 +20,7 @@ class BaytScraper(BaseScraper):
 
     async def _fetch_base_urls(self) -> None:
         """Fetches URLs of pages containing listings and updates _base_urls"""
+
         async with self._session.get(self._config.BASE_URL + "1") as response:
             self.check_timeout(response)
 
@@ -28,37 +33,22 @@ class BaytScraper(BaseScraper):
 
 
     @retry(retry=retry_if_exception_type(ServerTimeoutError))
-    async def fetch_job_postings(self, url: str) -> None:
+    async def fetch_job_postings(self, url: str, collection: motor.motor_asyncio.AsyncIOMotorCollection) -> None:
         """Fetch the URLs of individual job postings from a single base URL."""
         async with self._session.get(url) as response:
             self.check_timeout(response)
 
             soup = bs4.BeautifulSoup(await response.text(), 'lxml')
             for job_posting in soup.find_all(**self._config.job_posting_item):
-                self._postings.put_nowait(f"https://www.bayt.com{job_posting.get('href')}")
-
-    async def parse_description(self, soup: bs4.BeautifulSoup) -> dict[str]:
-        """ TO BE WORKED ON!!!!!
-        Method specific to Bayt. Scrapes description of a job_posting
-        @rtype: dict[str]
-        @param soup:
-        @return:
-        """
-
-        dic = {}
-        paragraphs = soup.find_all('p')
-        current_key = ""
-        for i in range(len(paragraphs)):
-            if any(child.name != 'br' for child in paragraphs[i].find_all(recursive=False)):
-                current_key = paragraphs[i].get_text(strip=True)
-                continue
-            if not (paragraphs[i].find('br')):
-                dic[current_key] = dic.get(current_key, '') + ' ' + paragraphs[i].string.strip()
-        return dic
+                url = f"https://www.bayt.com{job_posting.get('href')}"
+                if await collection.find_one({"job_link": url}) is None:
+                    self._postings.put_nowait(url)
+                else:
+                    print(f'BAYT: {url} already exists in the DB')
 
     @retry(retry=(retry_if_exception_type(AttributeError) | retry_if_exception_type(
         aiohttp.ClientConnectorError) | retry_if_exception_type(ServerTimeoutError) | retry_if_exception_type(
-        aiohttp.ServerDisconnectedError)))
+        aiohttp.ServerDisconnectedError) | retry_if_exception_type(ClientPayloadError)))
     async def parse_job_posting(self, url: str) -> dict[str, str | None | dict]:
         """takes the job posting URL and extracts all relevant information about the job"""
         async with self._session.get(url) as response:
@@ -73,10 +63,7 @@ class BaytScraper(BaseScraper):
                 valid_through = script_json[self._config.ValidThrough]
                 list_item = job_page_soup.find(**self._config.details_item)
                 job_details_item = job_page_soup.find_all(**self._config.job_details_item)[1]
-                try:
-                    description = await self.parse_description(job_details_item)
-                except:
-                    description = "unavailable"
+                description = job_details_item.find('div',class_="t-break").get_text(separator="|")
 
                 job_dictionary = \
                 {
