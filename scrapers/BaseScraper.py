@@ -18,6 +18,7 @@ class BaseScraper:
             self._throttler = throttler
 
     def check_timeout(self, response: ClientResponse) -> None:
+        """checking for errors and timeouts to initiate retrying"""
 
         if response.status in range(400, 600):
             raise ServerTimeoutError('Request Timeout')

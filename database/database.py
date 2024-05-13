@@ -9,8 +9,8 @@ from typing import Any
 
 
 load_dotenv()
-MONGODB_URI = os.environ['MONGODB_URI']
-DATABASE_NAME = os.environ['DATABASE_NAME']
+MONGODB_URI = os.getenv('MONGODB_URI')
+DATABASE_NAME = os.getenv('DATABASE_NAME')
 
 
 class Mongo:
