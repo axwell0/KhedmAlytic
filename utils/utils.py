@@ -18,17 +18,19 @@ class RetryError(Exception):
 
 
 system = "You are a helpful and obedient assistant."
-human = """classify the industry/line of each job posting. ONLY USE ONE OF THE FOLLOWING CATEGORIES: 
-            Engineering,
-            IT,
+human = """classify the industry/line of each job posting. ONLY USE ONE OF THE FOLLOWING CATEGORIES. DO NOT COME UP WITH ANOTHER CATEGORY: 
+            Tradesperson,
+            Engineering (THIS ONLY INCLUDES ALL COLLEGE-LEVEL Engineering disciplines except software),
+            Software/IT,
             Administration/Management,
-            Finance/Accounting,
-            Sales/Marketing,
+            Finance,
+            Accounting
+            Sales,
+            Marketing
             Healthcare,
-            Manufacturing/Production,
+            Manufacturing,
             Customer Service,
-            Arts & Design,
-            Other. write in this format: title:classification in a new line.DO NOT SKIP ANY JOB. The job posting titles are {batch}"""
+            Arts & Design. write in this format: title:classification in a new line.DO NOT SKIP ANY JOB. The job posting titles are {batch}"""
 prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
 
 
