@@ -2,6 +2,8 @@
 .idea/*
 *.pyc
 *.pyo
+secrets.toml
+*.toml
 __pycache__/
 *.py[cod]
 
