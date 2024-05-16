@@ -6,7 +6,7 @@ import spacy
 import streamlit as st
 from folium.plugins import MarkerCluster
 from nltk.corpus import stopwords
-
+nltk.download('stopwords')
 from utils.utils import block
 nlp = spacy.load('fr_core_news_sm')
 stop = set(stopwords.words('french'))
