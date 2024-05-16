@@ -3,6 +3,11 @@ name: Run Web Scraper
 on:
   schedule:
     - cron: '*/6 * * * *' #Run every 3 days
+env:
+  MONGODB_URI: ${{secrets.MONGODB_URI}}
+  DB: ${{secrets.DB}}
+  tanit_collection_name: ${{secrets.TANIT_COLLECTION_NAME}}
+  bayt_collection_name: ${{secrets.BAYT_COLLECTION_NAME}}
 
 jobs:
   run-scraper:
