@@ -136,3 +136,4 @@ with tab4:
     st.write('- Locations on the map were extrapolated from zone information supplied by employers. They are then fed to a geolocator API to extrapolate latitude/longitude information. This is why many jobs have the same exact coordinates on the map')
     st.write('- Categories are inferred by a Llama3 model. Hallucinations and random variations in model output may contribute to incorrect labels on job categories')
     st.write('- More than half job postings do not include salary ranges, therefore, interpretations of charts depicting salary ranges should be taken with a healthy amount of skepticism')
+    st.write('- *This website refreshes with new data every 3 days automatically. You may press the fetch DB button to manually trigger a reload of the database*')

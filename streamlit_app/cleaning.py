@@ -79,10 +79,10 @@ def render_cleaning_tab():
         total = tanit_df['Category'].value_counts().sum()
         categories = tanit_df['Category'].value_counts()
         tanit_df['Category'] = tanit_df['Category'].apply(lambda x: x if pd.notna(x) and ((x in keep_categories) or (categories[x] / total > 0.02)) else 'Other')'''
-    subtitle2 = '#### Extracting the number of available openings of a particular job'
-    subtitle3 = "#### Text data clean up (Punctuation, stop words, special characters removal)"
-    subtitle4 = "#### Converting 'Zone' data into latitude and longitude using a geocoding API (implementation in utils)"
-    subtitle5 = "#### Extraction of broad job categories using Llama3 API (implementation in utils)"
+    subtitle2 = 'Extracting the number of available openings of a particular job'
+    subtitle3 = "Text data clean up (Punctuation, stop words, special characters removal)"
+    subtitle4 = "Converting 'Zone' data into latitude and longitude using a geocoding API (implementation in utils)"
+    subtitle5 = "Extraction of broad job categories using Llama3 API (implementation in utils)"
     blocks = [block(code_snippet=code_snippet1), block(subtitle2, code_snippet2), block(subtitle3, code_snippet3),
               block(subtitle4, code_snippet4), block(subtitle5, code_snippet5)]
     for item in blocks:
