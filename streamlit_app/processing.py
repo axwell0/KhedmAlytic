@@ -11,9 +11,9 @@ from nltk.corpus import stopwords
 
 from utils.utils import get_coordinates, get_job_industries
 
-nltk.download('wordnet')
-nltk.download('punkt')
-nltk.download('stopwords')
+# nltk.download('wordnet')
+# nltk.download('punkt')
+# nltk.download('stopwords')
 nlp = spacy.load('fr_core_news_sm')
 stop = set(stopwords.words('french'))
 exclude = set(string.punctuation)
@@ -29,6 +29,7 @@ def run_asyncio_task(task):
 
 
 def clean(doc):
+    """removes punctuation, stop words, and special symbols"""
     if not (type(doc) in [np.nan, np.NAN, np.NaN, float, "", None]):
         stop_free = " ".join([i for i in doc.lower().split() if i not in stop])
         punc_free = ''.join(ch for ch in stop_free if ch not in exclude)
@@ -38,7 +39,7 @@ def clean(doc):
     return None
 
 
-@st.cache_data(ttl=57600)
+@st.cache_data(ttl=82800 * 3)
 def pre_process(tanit_df):
     experience_map = {'Débutant': 'No experience', '0 à 1 an': '0-1 year', '1 à 3 ans': '1-3 years',
                       '3 à 5 ans': '3-5 years', '5 à 10 ans': '5-10 years', 'plus 10 ans': '10+ years'}
@@ -93,7 +94,7 @@ def pre_process(tanit_df):
     tanit_df['Category'] = tanit_df['Title'].map(category_result)
     keep_categories = ['Administration/Management', 'Sales', 'Tradesperson', 'Software/IT',
                        'Engineering', 'Arts & Design', 'Customer Service', 'Finance',
-                       'Marketing', 'Healthcare', 'Accounting', 'Manufacturing']
+                       'Marketing',  'Accounting']
 
     total = tanit_df['Category'].value_counts().sum()
     categories = tanit_df['Category'].value_counts()

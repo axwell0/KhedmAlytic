@@ -10,7 +10,7 @@ import pymongo
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
-from tenacity import retry, retry_if_exception_type, wait_fixed
+from tenacity import retry, retry_if_exception_type, wait_fixed, stop_after_attempt
 from aiohttp import ClientSession
 from typing import Any, Generator
 
@@ -39,7 +39,7 @@ human = """classify the industry/line of each job posting. ONLY USE ONE OF THE F
 prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
 
 
-@retry(wait=wait_fixed(1), retry=retry_if_exception_type(RetryError))
+@retry(wait=wait_fixed(1),stop=stop_after_attempt(5) ,retry=retry_if_exception_type(RetryError))
 async def label_industry(batch: list, api_key: str, classifications: dict):
     """
     runs the batch through the groq cloud API (LLM) to infer industry
@@ -87,39 +87,28 @@ async def get_job_industries(df: pd.DataFrame) -> dict:
     """Uses the 'Title' column of a dataframe and runs it through a Llama3 API to infer its industry/line of work
     :param df: dataframe containing a 'Title' column"""
     api_keys = [
-        "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",
-        "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",
+        "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",
+        "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",
         "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",
-        "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",
-        "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",
-        "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",
-        "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"
     ]
 
     classifications = {}
     unique_titles = df['Title'].unique()
-    total_batches = len(unique_titles) // 5 + (len(unique_titles) % 5 > 0)
 
-    progress_bar = st.progress(0)
-    count = 0
+    batches = list(get_batch(unique_titles))
 
-    for batch in get_batch(unique_titles):
-        await label_industry(batch, random.choice(api_keys), classifications)
-
-        count += 1
-        progress_bar.progress(count / total_batches)
+    for i, batch in enumerate(batches):
+        api_key = api_keys[i % len(api_keys)]
+        await label_industry(batch, api_key, classifications)
 
     print(f'L: {len(classifications)} {classifications}')
     return classifications
-
-
-
 
 async def send(zone: str, session: ClientSession, apikey: str,zones: dict):
     async with session.get(f'https://geocode.maps.co/search?q={zone}&api_key={apikey}') as resp:
 
         x = await resp.text()
-        if (x != "[]"):
+        if x != "[]":
 
             try:
 
@@ -134,31 +123,18 @@ async def send(zone: str, session: ClientSession, apikey: str,zones: dict):
 
 
 async def get_coordinates(df: pd.DataFrame,n_zones: int = 50) -> pd.DataFrame:
-    geocoding_apikeys = [
-        "6640181610756399606617buna43faa",
-        "6640b722d851d739895184xch5acb84",
-        "6640b7a0782db510080964dztb878fd"
-    ]
+    geocoding_apikeys = ["6640181610756399606617buna43faa",
+                         "6640b722d851d739895184xch5acb84",
+                         "6640b7a0782db510080964dztb878fd"]
     zones = {}
     async with ClientSession() as session:
-        # Initialize the progress bar
-        progress_bar = st.progress(0)
-        total_zones = len(df['Zone'].value_counts().head(n_zones).index)
-        count = 0
-
         for item in df['Zone'].value_counts().head(n_zones).index:
-            await send(item, session, random.choice(geocoding_apikeys), zones)
+            await send(item, session, random.choice(geocoding_apikeys),zones)
             await asyncio.sleep(1)
-
-            # Update the progress bar
-            count += 1
-            progress_bar.progress(count / total_zones)
-
     data = [{'Zone': zone, 'Longitude': coords['Longitude'], 'Latitude': coords['Latitude']} for zone, coords in
             zones.items()]
+
     return pd.DataFrame(data)
-
-
 def auto_reconnect(max_auto_reconnect_attempts):
     """Auto reconnect handler"""
     def decorator(mongo_op_func):
@@ -174,3 +150,17 @@ def auto_reconnect(max_auto_reconnect_attempts):
             raise pymongo.errors.AutoReconnect(f"Failed to reconnect after {max_auto_reconnect_attempts} attempts.")
         return wrapper
     return decorator
+
+
+
+class block:
+    """Block for rendering elements on streamlit"""
+    def __init__(self, subtitle: str = "", code_snippet: str = ""):
+        self.sub = subtitle
+        self.code = code_snippet
+
+    def render(self):
+        if (self.sub):
+            st.markdown(f'#### {self.sub}')
+        if (self.code):
+            st.code(self.code)
