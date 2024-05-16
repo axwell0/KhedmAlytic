@@ -4,7 +4,7 @@ import json
 import logging
 import random
 import time
-
+import streamlit as st
 import pandas as pd
 import pymongo
 
@@ -86,16 +86,28 @@ def get_batch(series: pd.Series, batch_size: int = 100) -> Generator[list, Any, 
 async def get_job_industries(df: pd.DataFrame) -> dict:
     """Uses the 'Title' column of a dataframe and runs it through a Llama3 API to infer its industry/line of work
     :param df: dataframe containing a 'Title' column"""
-    api_keys = ["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",
-                "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",
-                "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",
-                "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",
-                "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",
-                "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",
-                "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"]
+    api_keys = [
+        "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",
+        "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",
+        "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",
+        "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",
+        "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",
+        "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",
+        "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"
+    ]
+
     classifications = {}
-    for batch in get_batch(df['Title'].unique()):
+    unique_titles = df['Title'].unique()
+    total_batches = len(unique_titles) // 5 + (len(unique_titles) % 5 > 0)
+
+    progress_bar = st.progress(0)
+    count = 0
+
+    for batch in get_batch(unique_titles):
         await label_industry(batch, random.choice(api_keys), classifications)
+
+        count += 1
+        progress_bar.progress(count / total_batches)
 
     print(f'L: {len(classifications)} {classifications}')
     return classifications
@@ -122,17 +134,28 @@ async def send(zone: str, session: ClientSession, apikey: str,zones: dict):
 
 
 async def get_coordinates(df: pd.DataFrame,n_zones: int = 50) -> pd.DataFrame:
-    geocoding_apikeys = ["6640181610756399606617buna43faa",
-                         "6640b722d851d739895184xch5acb84",
-                         "6640b7a0782db510080964dztb878fd"]
+    geocoding_apikeys = [
+        "6640181610756399606617buna43faa",
+        "6640b722d851d739895184xch5acb84",
+        "6640b7a0782db510080964dztb878fd"
+    ]
     zones = {}
     async with ClientSession() as session:
+        # Initialize the progress bar
+        progress_bar = st.progress(0)
+        total_zones = len(df['Zone'].value_counts().head(n_zones).index)
+        count = 0
+
         for item in df['Zone'].value_counts().head(n_zones).index:
-            await send(item, session, random.choice(geocoding_apikeys),zones)
+            await send(item, session, random.choice(geocoding_apikeys), zones)
             await asyncio.sleep(1)
+
+            # Update the progress bar
+            count += 1
+            progress_bar.progress(count / total_zones)
+
     data = [{'Zone': zone, 'Longitude': coords['Longitude'], 'Latitude': coords['Latitude']} for zone, coords in
             zones.items()]
-
     return pd.DataFrame(data)
 
 
