@@ -58,7 +58,7 @@ for i in range(3, 0, -1):
 status_text.empty()
 progress_bar.empty()
 
-tab1, tab2, tab3 = st.tabs(["Introduction", "Data Cleaning", "Visualization"])
+tab1, tab2, tab3,tab4 = st.tabs(["Introduction", "Data Cleaning", "Visualization","Notes"])
 with tab1:
     render_introduction()
 with tab2:
@@ -131,3 +131,8 @@ with tab3:
     st.write(
         "high demand for web development skills like SQL, PHP, HTML, JavaScript, and Python. React and Angular indicate a need for modern web applications. Docker, AWS, azure indicate demand for cloud and devops engineers. Mobile app development is also in demand (java, android, flutter). The market for AI and Machine Learning has not flourished yet.")
 
+with tab4:
+    st.write('There are various limitations to the conclusions from this exploratory research which shall be noted below: ')
+    st.write('- Locations on the map were extrapolated from zone information supplied by employers. They are then fed to a geolocator API to extrapolate latitude/longitude information. This is why many jobs have the same exact coordinates on the map')
+    st.write('- Categories are inferred by a Llama3 model. Hallucinations and random variations in model output may contribute to incorrect labels on job categories')
+    st.write('- More than half job postings do not include salary ranges, therefore, interpretations of charts depicting salary ranges should be taken with a healthy amount of skepticism')

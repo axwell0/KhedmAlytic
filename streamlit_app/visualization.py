@@ -302,8 +302,8 @@ def execute_block8(tanit_df):
         fig = px.bar(ed_levels1, y='count', x='Category', color='education_levels', barmode='group')
         fig.update_layout(yaxis={'categoryorder':'total ascending'},height=500)
         fig.show()'''
-    Block = block('Degree requirements by category',viz_snippet7)
-
+    Block = block('Degree requirements by job category',viz_snippet7)
+    Block.render()
     ed_levels = tanit_df.explode("education_levels")
     ed_levels1 = ed_levels.groupby(['Category', 'education_levels']).size().reset_index(name="count")
     ed_levels1 = ed_levels1[(ed_levels1['education_levels'].isin(['Master', 'Ingénieur', 'Licence'])) & (
