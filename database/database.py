@@ -15,7 +15,7 @@ class Mongo:
     client = None
     database = None
 
-    def __new__(cls):
+    def __new__(cls,mongo_uri :str,db_name:str ):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
