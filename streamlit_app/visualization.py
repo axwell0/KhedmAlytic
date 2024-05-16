@@ -1,6 +1,7 @@
 import string
 
 import folium
+import nltk
 import plotly.express as px
 import spacy
 import streamlit as st
