@@ -12,11 +12,11 @@ from database.database import Mongo
 from scrapers.BaytScraper import BaytScraper
 from scrapers.TanitScraper import TanitScraper
 
-load_dotenv('database/.env')
-MONGODB_URI = os.environ['MONGODB_URI']
-DB = os.environ['DATABASE_NAME']
-bayt_collection_name = os.environ['Bayt_collection']
-tanit_collection_name = os.environ['Tanit_collection']
+#load_dotenv('database/.env')
+#MONGODB_URI = os.environ['MONGODB_URI']
+#DB = os.environ['DATABASE_NAME']
+#bayt_collection_name = os.environ['Bayt_collection']
+#tanit_collection_name = os.environ['Tanit_collection']
 start_time = time.time()
 
 
