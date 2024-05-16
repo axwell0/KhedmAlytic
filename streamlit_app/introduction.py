@@ -31,14 +31,8 @@ code_snippet = '''
 
 def render_introduction():
     """Renders the introduction tab of the web app"""
+    st.markdown('# Introduction')
 
-    col1, col2 = st.columns([12, 1])
-    with col1:
-        st.markdown('# Introduction')
-    with col2:
-        if st.button('Fetch DB'):
-            st.cache_data.clear()
-            st.write("Data fetched and updated!")
     st.write(
         'Tanitjobs has been the leading job search website in Tunisia for many years. We scraped data from this website to gain insights into the job market, analyze trends, and understand the demands and opportunities available for job seekers in Tunisia')
 
