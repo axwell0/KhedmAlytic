@@ -1,10 +1,13 @@
+import nltk
 import streamlit as st
 from streamlit_folium import folium_static
 
 from streamlit_app.cleaning import *
 from streamlit_app.visualization import *
-
 st.set_page_config(layout="wide")
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('wordnet')
 
 import time
 import pandas as pd
