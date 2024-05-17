@@ -27,7 +27,7 @@ class BaytScraper(BaseScraper):
             soup = bs4.BeautifulSoup(await response.text(), 'lxml')
             count_element = soup.find(**self._config.job_count).string
             n_jobs = int(count_element.strip().split()[0])
-            print(f'{n_jobs} jobs found')
+            print(f'{n_jobs} Bayt jobs found')
             self._base_urls = [f"{self._config.BASE_URL}{i}" for i in
                                range(1, math.ceil(n_jobs / self._config.ITEMS_PER_PAGE) + 1)]
 
@@ -55,37 +55,38 @@ class BaytScraper(BaseScraper):
             self.check_timeout(response)
             job_page_content = await response.text()
             job_page_soup = bs4.BeautifulSoup(job_page_content, 'lxml')
-            try:
-                title = job_page_soup.find(**self._config.title).string.strip()
-                employer = job_page_soup.find(**self._config.employer).string.strip()
-                script_json = json.loads(job_page_soup.find(**self._config.script).string)
-                posted_on = script_json[self._config.datePosted]
-                valid_through = script_json[self._config.ValidThrough]
-                list_item = job_page_soup.find(**self._config.details_item)
-                job_details_item = job_page_soup.find_all(**self._config.job_details_item)[1]
-                description = job_details_item.find('div',class_="t-break").get_text(separator="|")
+            if not(job_page_soup.find('div.t-danger')):
+                try:
+                    title = job_page_soup.find(**self._config.title).string.strip()
+                    employer = job_page_soup.find(**self._config.employer).string.strip()
+                    script_json = json.loads(job_page_soup.find(**self._config.script).string)
+                    posted_on = script_json[self._config.datePosted]
+                    valid_through = script_json[self._config.ValidThrough]
+                    list_item = job_page_soup.find(**self._config.details_item)
+                    job_details_item = job_page_soup.find_all(**self._config.job_details_item)[1]
+                    description = job_details_item.find('div',class_="t-break").get_text(separator="|")
 
-                job_dictionary = \
-                {
-                    "Title": title,
-                    "Job Location": None,
-                    "Employer": employer,
-                    "Employment Type": None,
-                    "Job Role": None,
-                    "Company Type": None,
-                    "Company Industry": None,
-                    "Monthly Salary Range": None,
-                    "Number of Vacancies": None,
-                    "Description": description,
-                    "posted_on": posted_on,
-                    "Valid_Through": valid_through,
-                    "job_link": url
-                }
-                for item in list_item.find_all('div'):
-                    job_dictionary[item.dt.string.strip()] = item.dd.string.strip()
-                print(f'Bayt {job_dictionary}')
-                return job_dictionary
+                    job_dictionary = \
+                    {
+                        "Title": title,
+                        "Job Location": None,
+                        "Employer": employer,
+                        "Employment Type": None,
+                        "Job Role": None,
+                        "Company Type": None,
+                        "Company Industry": None,
+                        "Monthly Salary Range": None,
+                        "Number of Vacancies": None,
+                        "Description": description,
+                        "posted_on": posted_on,
+                        "Valid_Through": valid_through,
+                        "job_link": url
+                    }
+                    for item in list_item.find_all('div'):
+                        job_dictionary[item.dt.string.strip()] = item.dd.string.strip()
+                    print(f'Bayt {job_dictionary}')
+                    return job_dictionary
 
-            except:
-                print(f'Error with {url}')
-                print(f'{job_page_content}')
+                except:
+                    print(f'Error with {url}')
+                    print(f'{job_page_content}')

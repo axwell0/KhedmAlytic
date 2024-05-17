@@ -28,7 +28,7 @@ class TanitScraper(BaseScraper):
             last_page_link = soup.select_one(self._config.last_page_item)
             n_jobs_element = soup.select_one('h1.search-results__title.col-sm-offset-3.col-xs-offset-0')
             n_jobs = re.search(r'\d+', n_jobs_element.string.strip()).group()
-            print(f"{n_jobs} jobs found")
+            print(f"{n_jobs} Tanit jobs found")
             last_page = re.search(r'page=(\d+)', last_page_link['href']).group(1)
             assert last_page.isdigit(), f"The string {last_page} cannot be converted to an integer"
             return int(last_page)
