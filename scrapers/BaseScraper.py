@@ -48,7 +48,7 @@ class BaseScraper:
             worker_tasks.append(asyncio.create_task(self._worker(i)))
 
         await self._postings.join()
-        self.save_jobs(self._config.FILE_PATH, self.jobs)
+        #self.save_jobs(self._config.FILE_PATH, self.jobs)
 
         await self._session.close()
         return self.jobs
