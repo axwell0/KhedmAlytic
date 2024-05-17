@@ -18,3 +18,4 @@ throttler==1.2.2
 spacy
 https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.7.0/fr_core_news_sm-3.7.0-py3-none-any.whl
 streamlit_folium
+lxml
