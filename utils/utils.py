@@ -87,9 +87,7 @@ async def get_job_industries(df: pd.DataFrame) -> dict:
     """Uses the 'Title' column of a dataframe and runs it through a Llama3 API to infer its industry/line of work
     :param df: dataframe containing a 'Title' column"""
     api_keys = [
-        "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",
-        "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",
-        "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",
+        "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"
     ]
 
     classifications = {}
