@@ -6,7 +6,8 @@ secrets.toml
 *.toml
 __pycache__/
 *.py[cod]
-
+analysis.ipynb
+.ipynb_checkpoints
 # C extensions
 *.so
 
