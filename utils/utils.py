@@ -7,7 +7,7 @@ import time
 import streamlit as st
 import pandas as pd
 import pymongo
-from langchain_together import Together
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 from tenacity import retry, retry_if_exception_type, wait_fixed, stop_after_attempt
