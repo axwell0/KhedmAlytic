@@ -8,11 +8,12 @@ import spacy
 import pandas as pd
 import streamlit as st
 from nltk.corpus import stopwords
-
+from spacy.cli import download
 
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('stopwords')
+download('fr_core_news_sm')
 nlp = spacy.load('fr_core_news_sm')
 stop = set(stopwords.words('french'))
 exclude = set(string.punctuation)
