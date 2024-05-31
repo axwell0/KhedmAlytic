@@ -4,6 +4,7 @@ import functools
 import pymongo
 
 
+
 def auto_reconnect(max_auto_reconnect_attempts):
     """Auto reconnect handler"""
     def decorator(mongo_op_func):
