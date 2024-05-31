@@ -10,9 +10,9 @@ import streamlit as st
 from nltk.corpus import stopwords
 
 
-# nltk.download('wordnet')
-# nltk.download('punkt')
-# nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('punkt')
+nltk.download('stopwords')
 nlp = spacy.load('fr_core_news_sm')
 stop = set(stopwords.words('french'))
 exclude = set(string.punctuation)
