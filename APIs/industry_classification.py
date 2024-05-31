@@ -53,10 +53,8 @@ def get_batch(series: pd.Series, batch_size: int = 100):
         yield list(batch_titles)
 
 
-async def get_job_industries(df: pd.DataFrame) -> dict:
-    api_keys = [
-        GROQ_API_KEY
-    ]
+async def get_job_industries(df: pd.DataFrame, GROQ_API_KEY:str) -> dict:
+    api_keys = GROQ_API_KEY
     classifications = {}
     unique_titles = df['Title'].unique()
     batches = list(get_batch(unique_titles))

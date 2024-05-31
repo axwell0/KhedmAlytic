@@ -45,9 +45,9 @@ async def scrape() -> None:
         if tanit_jobs:
             print('Preprocessing Tanitjobs....')
             df = pd.DataFrame(tanit_task.result())
-            coordinates = await get_coordinates(df)
+            coordinates = await get_coordinates(df,GEO_KEY1,GEO_KEY2,GEO_KEY3)
             print('Coordinates obtained')
-            classes = await get_job_industries(df)
+            classes = await get_job_industries(df,GROQ_API_KEY)
             df['Category'] = df['Title'].map(classes)
 
             df = df.merge(coordinates, on='Zone', how='left')

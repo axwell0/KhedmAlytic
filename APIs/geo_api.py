@@ -18,8 +18,8 @@ async def send(zone: str, session: ClientSession, apikey: str, zones: dict):
                 print('Error with Json')
 
 
-async def get_coordinates(df: pd.DataFrame, n_zones: int = 50) -> pd.DataFrame:
-    geocoding_apikeys = ["your_api_keys"]
+async def get_coordinates(df: pd.DataFrame,*API_KEYS ,n_zones: int = 50) -> pd.DataFrame:
+    geocoding_apikeys = [*API_KEYS]
     zones = {}
     async with ClientSession() as session:
         for item in df['Zone'].value_counts().head(n_zones).index:

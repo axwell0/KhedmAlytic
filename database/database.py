@@ -30,7 +30,7 @@ class Mongo:
 
     async def insert_job(self, job: Any, collection: str) -> None:
         """Inserts job in collection"""
-        if (job):
+        if job:
             try:
                 await self[collection].insert_one(job)
                 print(f"Uploaded document {job['Title']} to collection {collection}")

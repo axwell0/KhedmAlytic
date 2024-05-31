@@ -7,7 +7,6 @@ import spacy
 import streamlit as st
 from folium.plugins import MarkerCluster
 from nltk.corpus import stopwords
-from utils.utils import block
 
 nlp = spacy.load('fr_core_news_sm')
 stop = set(stopwords.words('french'))
@@ -15,7 +14,7 @@ exclude = set(string.punctuation)
 
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block1(tanit_df):
+def plot_job_category_distribution(tanit_df):
     """Executes block1"""
 
 
@@ -40,7 +39,7 @@ def execute_block1(tanit_df):
 
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block2(tanit_df):
+def plot_job_locations(tanit_df):
     st.markdown(f'#### Visualizing the concentration of jobs across the country.')
 
     filtered_df = tanit_df[(tanit_df['Latitude'].notna()) & (tanit_df['Category'].notna())]
@@ -56,7 +55,7 @@ def execute_block2(tanit_df):
 
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block3(tanit_df):
+def plot_salary_ranges(tanit_df):
 
     filtered_df = tanit_df[(tanit_df['Salary Range'] != 'Confidentiel') & (tanit_df['Salary Range'].notna()) & (
             tanit_df['Category'] != 'Other')]
@@ -94,7 +93,7 @@ def execute_block3(tanit_df):
 
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block4(tanit_df):
+def plot_language_requirements(tanit_df):
     df = tanit_df.explode('Language_list')
     language_counts = df.groupby(['Category', 'Language_list']).size().reset_index(name='Count')
     language_counts = language_counts[(~language_counts['Category'].isin(['Other'])) & (
@@ -105,7 +104,7 @@ def execute_block4(tanit_df):
 
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block5(tanit_df):
+def plot_experience_requirements(tanit_df):
 
     filtered_df = tanit_df[tanit_df['Category'] != 'Other']
     experience_counts = filtered_df.groupby(['Category', 'Experience']).size().reset_index(name="count")
@@ -132,7 +131,7 @@ def execute_block5(tanit_df):
 
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block6(tanit_df):
+def plot_internship_postings(tanit_df):
 
 
     exploded_df = tanit_df.explode('contract_types')
@@ -149,7 +148,7 @@ def execute_block6(tanit_df):
 
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block7(tanit_df):
+def plot_experience_vs_internship(tanit_df):
 
     exploded_df = tanit_df.explode('contract_types')
 
@@ -172,7 +171,7 @@ def execute_block7(tanit_df):
     return fig
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block8(tanit_df):
+def plot_degree_requirements(tanit_df):
 
     ed_levels = tanit_df.explode("education_levels")
     ed_levels1 = ed_levels.groupby(['Category', 'education_levels']).size().reset_index(name="count")
@@ -184,7 +183,7 @@ def execute_block8(tanit_df):
     return fig
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block9(tanit_df):
+def plot_salaries_by_degree(tanit_df):
 
     ed_levels = tanit_df.explode("education_levels")
     filtered_df = ed_levels[(ed_levels['Category'].isin(['Finance', 'Engineering', 'Marketing', 'Software/IT'])) & (
@@ -207,7 +206,7 @@ def execute_block9(tanit_df):
     return fig
 
 @st.cache_data(ttl=82800 * 3)
-def execute_block10(tanit_df):
+def plot_software_requirements(tanit_df):
     programming_keywords = {
         'python', 'java', 'javascript', 'c++', 'c#', 'ruby', 'php', 'swift', 'kotlin',
         'typescript', 'go', 'r', 'scala', 'perl', 'rust', 'dart', 'matlab', 'html',
