@@ -9,7 +9,6 @@ import pandas as pd
 import streamlit as st
 from nltk.corpus import stopwords
 
-from utils.utils import get_coordinates, get_job_industries
 
 # nltk.download('wordnet')
 # nltk.download('punkt')
@@ -17,16 +16,6 @@ from utils.utils import get_coordinates, get_job_industries
 nlp = spacy.load('fr_core_news_sm')
 stop = set(stopwords.words('french'))
 exclude = set(string.punctuation)
-
-
-def run_asyncio_task(task):
-    """handy function to run an async task and retrieve its result without interfering with the flow of the program"""
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    result = loop.run_until_complete(task)
-    loop.close()
-    return result
-
 
 def clean(doc):
     """removes punctuation, stop words, and special symbols"""
@@ -83,18 +72,13 @@ def pre_process(tanit_df):
     tanit_df['Requirements'] = tanit_df['Requirements'].fillna('').map(lambda x: clean(x)).apply(lambda x: x.lower())
     tanit_df['Title'].map(lambda x: x.encode('ascii', "ignore").decode())
     tanit_df['Zone'] = tanit_df['Zone'].map(lambda x: x.encode('ascii', "ignore").decode())
-    coordinates_task = get_coordinates(tanit_df)
-    coordinates = run_asyncio_task(coordinates_task)
-    tanit_df = tanit_df.merge(coordinates, on='Zone', how='left')
-    tanit_df['Latitude'] = tanit_df['Latitude'].astype(float)
-    tanit_df['Longitude'] = tanit_df['Longitude'].astype(float)
 
-    category_task = get_job_industries(tanit_df)
-    category_result = run_asyncio_task(category_task)
-    tanit_df['Category'] = tanit_df['Title'].map(category_result)
+
+
+
     keep_categories = ['Administration/Management', 'Sales', 'Tradesperson', 'Software/IT',
                        'Engineering', 'Arts & Design', 'Customer Service', 'Finance',
-                       'Marketing',  'Accounting']
+                       'Marketing', 'Accounting']
 
     total = tanit_df['Category'].value_counts().sum()
     categories = tanit_df['Category'].value_counts()

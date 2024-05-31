@@ -2,7 +2,6 @@ import os
 import asyncio
 import logging
 
-
 import motor.motor_asyncio
 from dotenv import load_dotenv
 from typing import Any
@@ -15,12 +14,13 @@ class Mongo:
     client = None
     database = None
 
-    def __new__(cls,mongo_uri :str,db_name:str ):
+    def __new__(cls, mongo_uri: str, db_name: str):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
         return cls._instance
-    def __init__(self,mongo_uri :str,db_name:str ):
+
+    def __init__(self, mongo_uri: str, db_name: str):
         self.mongo_uri = mongo_uri
         self.db_name = db_name
 
@@ -30,7 +30,7 @@ class Mongo:
 
     async def insert_job(self, job: Any, collection: str) -> None:
         """Inserts job in collection"""
-        if (job):
+        if job:
             try:
                 await self[collection].insert_one(job)
                 print(f"Uploaded document {job['Title']} to collection {collection}")
@@ -42,7 +42,6 @@ class Mongo:
 
         await self[collection].delete_many({})
         print(f'Wiped {collection} of all documents')
-
 
     async def __aenter__(self):
         try:
