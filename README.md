@@ -1,4 +1,4 @@
-# JobScraper
+# Khedmalytic
 
 This project is designed for web scraping and data analysis, specifically for the tunisian job market. It is deployed using Streamlit for interactive data visualization and processing.
 
